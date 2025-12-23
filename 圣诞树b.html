@@ -1,0 +1,48 @@
+import pygame
+from pygame.locals import *
+from OpenGL.GL import *
+from OpenGL.GLU import *
+import math
+
+# 初始化pygame和OpenGL
+pygame.init()
+display = (800, 600)
+pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
+gluPerspective(45, (display[0]/display[1]), 0.1, 50.0)
+glTranslatef(0.0, -2, -8)
+
+# 粒子数量、颜色等参数
+particle_count = 2000
+particles = []
+colors = []
+for i in range(particle_count):
+    # 生成圣诞树形状的粒子位置
+    theta = math.radians(i % 360)
+    z = -i / particle_count * 5
+    r = 2 * (1 + z / 5)
+    x = r * math.sin(theta)
+    y = r * math.cos(theta) + z + 5
+    particles.append([x, y, z])
+    # 颜色渐变（从底部到顶部粉色渐变）
+    color = [1, 0.5 + (y - 3)/4, 0.7 + (y - 3)/4]
+    colors.append(color)
+
+# 主循环
+clock = pygame.time.Clock()
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            quit()
+
+    glRotatef(1, 0, 1, 0)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    
+    glBegin(GL_POINTS)
+    for i in range(particle_count):
+        glColor3fv(colors[i])
+        glVertex3fv(particles[i])
+    glEnd()
+
+    pygame.display.flip()
+    clock.tick(60)
